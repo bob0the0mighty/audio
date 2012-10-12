@@ -48,12 +48,20 @@ void stop(){
 }
 
 void keyPressed(){
-  if(key == '\n' && !loaded) {
+  if(key == '\n' && !loaded) {//HERE
     name_entered = true;
   } else if(key == BACKSPACE && !loaded) {
     name = name.substring(0, name.length() - 1);
-  } else {
-     name += key;
-  } 
+  } else if(!name_entered) {
+     name += key;//HERE for loading files
+  } else if(keyCode == RIGHT && loaded && !playing){//play file 
+    player.play();
+    playing = true;
+  } else if(keyCode == LEFT && loaded) {//rewind play
+    player.rewind();
+  } else if(keyCode == DOWN && loaded && playing) {//pause play
+    player.pause();
+    playing = false;
+  }
 }
 

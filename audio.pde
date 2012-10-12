@@ -6,7 +6,7 @@ import ddf.minim.effects.*;
 Minim minim;
 AudioPlayer player;
 String name;
-Boolean name_entered, loaded;
+Boolean name_entered, loaded, playing;
 
 void setup() {
   size(1024, 400);
@@ -14,15 +14,13 @@ void setup() {
   background(0);
   name = "";
   name_entered = false;
-  loaded = false;
+  loaded       = false;
+  playing      = false;
   //noLoop();
-  
-  
   
 }
 
 void draw() {
-  //A
   //allows users to select an mp3 file (or type a URL) to play
   if(!loaded){
     println("Please enter a URL of a MP3 to load. Press enter to end input.");

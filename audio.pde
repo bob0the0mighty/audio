@@ -8,22 +8,27 @@ AudioPlayer player;
 String name;
 Boolean name_entered, loaded, playing;
 PFont font;
+float[] graph_left, graph_right;
+float r, l;
 
 void setup() {
-  size(512, 400);
+  size(1034, 400);
   minim = new Minim(this);
 
   font = loadFont("Futura-Medium-30.vlw");
   textFont(font, 30);
 
-  name = "";
+  name = "/users/david/Music/Gangnam_Style.mp3";
   name_entered = false;
   loaded       = false;
   playing      = false;
+  graph_left = new float[256];
+  graph_right = new float[256];
 }
 
 void draw() {
   background(0);
+  stroke(255);
   //allows users to select an mp3 file (or type a URL) to play
   if (!loaded) {
     text("Please enter a URL of a MP3 to load. Press enter to end input.", 10, 40);
@@ -31,13 +36,27 @@ void draw() {
   }
   //read/write audio files (can you convert from mp3 to aiff for example?)
   if (name_entered && !loaded) {
-    player = minim.loadFile(name, 512);
+    player = minim.loadFile(name, 256);
     loaded = true;
   }
   if(loaded) {
-    for (int x = 0; x < player.mix.size() - 1; x++) {
-      line(x, 200 + player.mix.get(x) * 100, x + 1, 200 + player.mix.get(x + 1) * 100);
+    if(playing) {//keep graph loaded if paused.
+      graph_left = player.left.toArray();
+      graph_right = player.right.toArray();
     }
+    
+    for (int x = 0; x < graph_left.length - 1; x = x + 4) {
+      //line(x*2+5, 200 + graph[x] * 100, x*2+6, 200 + [x + 1] * 100);
+      l = abs(graph_left[x]*256);
+      r = abs(graph_right[x]*256);
+      fill(100, 0, l%256);
+      rect(x * 2 + 5, 256, 5, -l);//left 
+      fill(100, r%256, 0);
+      rect(x * 2 + 520, 256, 5, -r);//right
+    }
+    
+    
+    //box();
   }
   //go to a certain point in the song (i.e. 1500 milliseconds)
 

@@ -10,31 +10,34 @@ Boolean name_entered, loaded, playing;
 PFont font;
 
 void setup() {
-  size(1024, 400);
+  size(512, 400);
   minim = new Minim(this);
-  
+
   font = loadFont("Futura-Medium-30.vlw");
   textFont(font, 30);
-  
+
   name = "";
   name_entered = false;
   loaded       = false;
   playing      = false;
-  //noLoop();
-  
 }
 
 void draw() {
   background(0);
   //allows users to select an mp3 file (or type a URL) to play
-  if(!loaded){
+  if (!loaded) {
     text("Please enter a URL of a MP3 to load. Press enter to end input.", 10, 40);
     text(name, 10, 75);
   }
   //read/write audio files (can you convert from mp3 to aiff for example?)
-  if(name_entered && !loaded){
-    player = minim.loadFile(name,1024);
+  if (name_entered && !loaded) {
+    player = minim.loadFile(name, 512);
     loaded = true;
+  }
+  if(loaded) {
+    for (int x = 0; x < player.mix.size() - 1; x++) {
+      line(x, 200 + player.mix.get(x) * 100, x + 1, 200 + player.mix.get(x + 1) * 100);
+    }
   }
   //go to a certain point in the song (i.e. 1500 milliseconds)
 
@@ -45,39 +48,47 @@ void draw() {
   //develop a SIMPLE visualizer
 }
 
-void stop(){
-   player.close();
-   minim.stop();
-  
-  super.stop(); 
+void stop() {
+  player.close();
+  minim.stop();
+
+  super.stop();
 }
 
-void keyPressed(){
-  if(key == '\n' && !loaded) {//HERE
+void keyPressed() {
+  if (key == '\n' && !loaded) {//HERE
     name_entered = true;
-  } else if(key == BACKSPACE && !loaded) {
-    if(name.length() > 0)
+  } 
+  else if (key == BACKSPACE && !loaded) {
+    if (name.length() > 0)
       name = name.substring(0, name.length() - 1);
-  } else if(!name_entered) {
-     name += key;//HERE for loading files
-  } else if(keyCode == RIGHT && loaded && !playing){//play file 
+  } 
+  else if (!name_entered) {
+    name += key;//HERE for loading files
+  } 
+  else if (keyCode == RIGHT && loaded && !playing) {//play file 
     player.play();
     playing = true;
-  } else if(keyCode == LEFT && loaded) {//rewind play
+  } 
+  else if (keyCode == LEFT && loaded) {//rewind play
     player.rewind();
-  } else if(keyCode == DOWN && loaded && playing) {//pause play
+  } 
+  else if (keyCode == DOWN && loaded && playing) {//pause play
     player.pause();
     playing = false;
-  } else if(key == 'z' && loaded){//rewind 5 seconds if possible, or to beginning of song
+  } 
+  else if (key == 'z' && loaded) {//rewind 5 seconds if possible, or to beginning of song
     int pos = player.position();
-    if(pos < 5000){
+    if (pos < 5000) {
       player.rewind();
-    } else {
+    } 
+    else {
       player.cue(pos - 5000);
     }
-  } else if(key == 'x' && loaded){//fast forward 5 seconds if possible, or does nothing
+  } 
+  else if (key == 'x' && loaded) {//fast forward 5 seconds if possible, or does nothing
     int pos = player.position() + 5000;
-    if((pos) < player.length()) {
+    if ((pos) < player.length()) {
       player.cue(pos);
     }
   }

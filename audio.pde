@@ -30,8 +30,9 @@ void setup() {
 }
 
 void draw() {
-  background(30);
-  stroke(200);
+  background(35);
+  fill(200);
+  stroke(100);
   //allows users to select an mp3 file (or type a URL) to play
   if (!loaded) {
     text("Please enter a URL of a MP3 to load. Press enter to end input.", 10, 40);
@@ -45,7 +46,7 @@ void draw() {
     title  = player.getMetaData().title();
   }
   if(loaded) {
-    if(playing) {//keep graph loaded if paused.
+    if(playing) {//don't update visualizer if paused.
       graph_left = player.left.toArray();
       graph_right = player.right.toArray();
     }
@@ -53,7 +54,18 @@ void draw() {
     fill(200);
     text(author + ": " + title, 10, 290);//display artist and title from metadata
     
-    for (int x = 0; x < graph_left.length - 1; x = x + 4) {
+    //go to a certain point in the song (i.e. 1500 milliseconds)
+    noFill();
+    stroke(150, 0, 0);
+    rect(4, 350, 1026, 27, 5);//outer position box
+    stroke(100);
+    fill(255);
+    println(player.position()/float(player.length()));
+    rect(5, 351, (player.position()/float(player.length()))*1024, 25, 5);
+    
+    //control volume, and pan or balance
+    
+    for (int x = 0; x < graph_left.length - 1; x = x + 4) {//develop a SIMPLE visualizer
       //line(x*2+5, 200 + graph[x] * 100, x*2+6, 200 + [x + 1] * 100);
       l = abs(graph_left[x]*255);
       r = abs(graph_right[x]*255);
@@ -62,17 +74,7 @@ void draw() {
       fill(0, r%256, 0);
       rect(x * 2 + 520, 256, 5, -r);//right
     }
-    
-    
-    //box();
   }
-  //go to a certain point in the song (i.e. 1500 milliseconds)
-
-
-  //control volume, and pan or balance
-
-
-  //develop a SIMPLE visualizer
 }
 
 void stop() {

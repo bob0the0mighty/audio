@@ -10,7 +10,7 @@ Boolean name_entered, loaded, playing;
 PFont font;
 float[] graph_left, graph_right;
 float r, l;
-int mouse_pos, mouse_vol;
+int played_time, total_time;
 
 void setup() {
   size(1034, 400);
@@ -45,6 +45,7 @@ void draw() {
     loaded = true;
     author = player.getMetaData().author();
     title  = player.getMetaData().title();
+    total_time = player.length();
   }
   if(loaded) {
     if(playing) {//don't update visualizer if paused.
@@ -55,6 +56,8 @@ void draw() {
     fill(200);
     text(author + ": " + title, 10, 290);//display artist and title from metadata
     
+    text()
+    
     //go to a certain point in the song (i.e. 1500 milliseconds)
     noFill();
     stroke(150, 25, 25);
@@ -62,7 +65,7 @@ void draw() {
     stroke(100);
     fill(100);
     //println(player.position()/float(player.length()));
-    rect(5, 351, (player.position()/float(player.length()))*1024, 25, 5);
+    rect(5, 351, (player.position()/float(total_time))*1024, 25, 5);
     
     //control volume, and pan or balance
     
@@ -118,7 +121,7 @@ void keyPressed() {
   } 
   else if (key == 'x' && loaded) {//fast forward 5 seconds if possible, or does nothing
     int pos = player.position() + 5000;
-    if ((pos) < player.length()) {
+    if ((pos) < total_time) {
       player.cue(pos);
     }
   }
@@ -126,8 +129,7 @@ void keyPressed() {
 
 void mouseClicked(){
   if(loaded){
-    if(int(map(mouseX, 6, width-6, 0, 1)*player.length()) >= 0 && 
-       int(map(mouseX, 6, width-6, 0, 1)*player.length()) < player.length())
-      player.
+    if(mouseY >= 350 && mouseY <= 380 && mouseX > 5 && mouseX < width-5)//in position bar
+      player.cue(int(map(mouseX, 6, width-6, 0, 1)*total_time));
   } 
 }

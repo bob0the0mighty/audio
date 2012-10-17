@@ -5,7 +5,7 @@ import ddf.minim.effects.*;
 
 Minim minim;
 AudioPlayer player;
-String name;
+String name, author, title;
 Boolean name_entered, loaded, playing;
 PFont font;
 float[] graph_left, graph_right;
@@ -13,6 +13,9 @@ float r, l;
 
 void setup() {
   size(1034, 400);
+  //size(1034, 400,OPENGL);//uncomment if not smooth, may not help
+  frameRate(30);
+  
   minim = new Minim(this);
 
   font = loadFont("Futura-Medium-30.vlw");
@@ -27,8 +30,8 @@ void setup() {
 }
 
 void draw() {
-  background(0);
-  stroke(255);
+  background(30);
+  stroke(200);
   //allows users to select an mp3 file (or type a URL) to play
   if (!loaded) {
     text("Please enter a URL of a MP3 to load. Press enter to end input.", 10, 40);
@@ -38,6 +41,8 @@ void draw() {
   if (name_entered && !loaded) {
     player = minim.loadFile(name, 256);
     loaded = true;
+    author = player.getMetaData().author();
+    title  = player.getMetaData().title();
   }
   if(loaded) {
     if(playing) {//keep graph loaded if paused.
@@ -45,13 +50,16 @@ void draw() {
       graph_right = player.right.toArray();
     }
     
+    fill(200);
+    text(author + ": " + title, 10, 290);//display artist and title from metadata
+    
     for (int x = 0; x < graph_left.length - 1; x = x + 4) {
       //line(x*2+5, 200 + graph[x] * 100, x*2+6, 200 + [x + 1] * 100);
-      l = abs(graph_left[x]*256);
-      r = abs(graph_right[x]*256);
-      fill(100, 0, l%256);
+      l = abs(graph_left[x]*255);
+      r = abs(graph_right[x]*255);
+      fill(0, 0, l%256);
       rect(x * 2 + 5, 256, 5, -l);//left 
-      fill(100, r%256, 0);
+      fill(0, r%256, 0);
       rect(x * 2 + 520, 256, 5, -r);//right
     }
     

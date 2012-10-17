@@ -10,6 +10,7 @@ Boolean name_entered, loaded, playing;
 PFont font;
 float[] graph_left, graph_right;
 float r, l;
+int mouse_pos, mouse_vol;
 
 void setup() {
   size(1034, 400);
@@ -30,7 +31,7 @@ void setup() {
 }
 
 void draw() {
-  background(35);
+  background(40);
   fill(200);
   stroke(100);
   //allows users to select an mp3 file (or type a URL) to play
@@ -56,11 +57,11 @@ void draw() {
     
     //go to a certain point in the song (i.e. 1500 milliseconds)
     noFill();
-    stroke(150, 0, 0);
+    stroke(150, 25, 25);
     rect(4, 350, 1026, 27, 5);//outer position box
     stroke(100);
-    fill(255);
-    println(player.position()/float(player.length()));
+    fill(100);
+    //println(player.position()/float(player.length()));
     rect(5, 351, (player.position()/float(player.length()))*1024, 25, 5);
     
     //control volume, and pan or balance
@@ -123,3 +124,10 @@ void keyPressed() {
   }
 }
 
+void mouseClicked(){
+  if(loaded){
+    if(int(map(mouseX, 6, width-6, 0, 1)*player.length()) >= 0 && 
+       int(map(mouseX, 6, width-6, 0, 1)*player.length()) < player.length())
+      player.
+  } 
+}

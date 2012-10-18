@@ -13,7 +13,7 @@ float r, l;
 int played_time, total_time;
 
 void setup() {
-  size(1034, 400);
+  size(1040, 400);
   //size(1034, 400,OPENGL);//uncomment if not smooth, may not help
   frameRate(30);
   
@@ -22,7 +22,7 @@ void setup() {
   font = loadFont("Futura-Medium-30.vlw");
   textFont(font, 30);
 
-  name = "/users/david/Music/Gangnam_Style.mp3";
+  name = "/Users/david/Music/Psy/Gangnam Style/01 Gangnam Style.mp3";
   name_entered = false;
   loaded       = false;
   playing      = false;
@@ -56,7 +56,8 @@ void draw() {
     fill(200);
     text(author + ": " + title, 10, 290);//display artist and title from metadata
     
-    text()
+    text(toMin(player.position()/1000), 10, 345);//print time elapsed
+    text(toMin(total_time/1000), width - 80, 345);//print total time
     
     //go to a certain point in the song (i.e. 1500 milliseconds)
     noFill();
@@ -68,15 +69,23 @@ void draw() {
     rect(5, 351, (player.position()/float(total_time))*1024, 25, 5);
     
     //control volume, and pan or balance
+    noFill();
+    stroke(150, 25, 25);
+    rect(width - 150, 290, 15, );//volume
     
-    for (int x = 0; x < graph_left.length - 1; x = x + 4) {//develop a SIMPLE visualizer
+    //rect();//balance
+    
+    fill(100);
+    
+    //develop a SIMPLE visualizer
+    for (int x = 0; x < graph_left.length - 1; x = x + 4) {
       //line(x*2+5, 200 + graph[x] * 100, x*2+6, 200 + [x + 1] * 100);
       l = abs(graph_left[x]*255);
       r = abs(graph_right[x]*255);
       fill(0, 0, l%256);
-      rect(x * 2 + 5, 256, 5, -l);//left 
+      rect(x * 2 + 5, 256, 5, -l);//left channel
       fill(0, r%256, 0);
-      rect(x * 2 + 520, 256, 5, -r);//right
+      rect(x * 2 + 520, 256, 5, -r);//right channel
     }
   }
 }
@@ -130,6 +139,17 @@ void keyPressed() {
 void mouseClicked(){
   if(loaded){
     if(mouseY >= 350 && mouseY <= 380 && mouseX > 5 && mouseX < width-5)//in position bar
-      player.cue(int(map(mouseX, 6, width-6, 0, 1)*total_time));
+      player.cue(int(map(mouseX, 6, width-6, 0, 1)*total_time));//set position close to click position
+    //if(){
+      
+    //}
   } 
+}
+
+String toMin(int seconds) {
+   String head = str(int(seconds/60));
+   String tail = str(seconds%60);
+   if(tail.length() == 1 )
+     tail = "0" + tail;
+   return head + ":" + tail;
 }

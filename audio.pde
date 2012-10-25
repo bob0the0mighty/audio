@@ -108,7 +108,7 @@ void draw() {
     rect(int(width/2) -51 , 265, 102, 17);//balance
     fill(100);
     stroke(100);
-    rect(int(width/2) , 265, player.getPan()*50, 15);
+    rect(int(width/2) , 266, player.getPan()*50, 15);
 
 
     //develop a SIMPLE visualizer
@@ -195,8 +195,12 @@ void mouseClicked() {
     }
     else if(mouseY >= 270 && mouseY <= 348 && mouseX >= 886 && mouseX < 900){//in volume area
       int lev = int(map(mouseY, 348, 270, g_levels.size()-1, 0));
-      println(lev + ": " + float(g_levels.get(lev).toString()));
+      //println(lev + ": " + float(g_levels.get(lev).toString()));
       player.setGain(float(g_levels.get(lev).toString())); 
+    } 
+    else if(mouseY >= 266 && mouseY <= 281 && mouseX >= int(width/2) -51 && mouseX < int(width/2) + 51) {//in pan area
+      //println("pan");
+      player.setPan(map(mouseX, (width/2)-50, (width/2)+50, -1.0, 1.0));
     }
     //println(mouseX + "  " + mouseY);
   }

@@ -5,8 +5,9 @@ import ddf.minim.effects.*;
 
 Minim minim;
 AudioPlayer player;
+FFT trans;
 String name, author, title;
-Boolean name_entered, loaded, playing;
+Boolean name_entered, loaded, playing, freq;
 PFont font;
 float[] graph_left, graph_right;
 float r, l;
@@ -19,6 +20,8 @@ void setup() {
 
   minim = new Minim(this);
 
+  trans = new FFT(256, 44100.0);
+
   font = loadFont("Futura-Medium-30.vlw");
   textFont(font, 30);
 
@@ -26,6 +29,7 @@ void setup() {
   name_entered = false;
   loaded       = false;
   playing      = false;
+  freq         = false;
   graph_left = new float[256];
   graph_right = new float[256];
 }
@@ -49,12 +53,27 @@ void draw() {
     graph_left = new float[256];//blank for loading new songs 
     graph_right = new float[256];// ditto
     println(player.getControls());
-    
   }
   if (loaded) {
     if (playing) {//don't update visualizer if paused.
-      graph_left = player.left.toArray();
-      graph_right = player.right.toArray();
+      if(freq) {
+        trans.linAverages(32);
+        trans.forward(player.left);
+        for (int i = 0; i < trans.avgSize(); i++)
+        {
+          graph_left[i] = trans.getAvg(i);
+          
+        }
+        trans.linAverages(32);
+        trans.forward(player.right);
+        for (int i = 0; i < trans.avgSize(); i++)
+        {
+          graph_right[i] = trans.getAvg(i);
+        }
+      } else {
+        graph_left = player.left.toArray();
+        graph_right = player.right.toArray();
+      }
     }
 
     fill(200);
@@ -78,19 +97,29 @@ void draw() {
     rect(width - 150, 265, 17, 82);//volume
     fill(100);
     stroke(100);
-    rect(width - 149, 346, 15, -(map(player.getGain(), -80.0, 6.0206, 0, 80)));
+    rect(width - 149, 346, 15, -(map(player.getGain(), -80.0, player.gain().getMaximum(), 0, 80)));
     //rect();//balance
 
 
     //develop a SIMPLE visualizer
-    for (int x = 0; x < graph_left.length - 1; x = x + 4) {
-      //line(x*2+5, 200 + graph[x] * 100, x*2+6, 200 + [x + 1] * 100);
-      l = abs(graph_left[x]*255);
-      r = abs(graph_right[x]*255);
-      fill(0, 0, l%256);
-      rect(x * 2 + 5, 256, 5, -l);//left channel
-      fill(0, r%256, 0);
-      rect(x * 2 + 520, 256, 5, -r);//right channel
+    if(freq) {
+      for (int x = 0; x < 32; x++) {
+        l = constrain(log(graph_left[x]+1)*100, 0, 255);
+        r = constrain(log(graph_right[x]+1)*100, 0, 255);
+        fill(0, 0, l%256);
+        rect(x * 16 + 5, 256, 13, -l);//left channel
+        fill(0, r%256, 0);
+        rect(x * 16 + 520, 256, 13, -r);//right channel
+      }
+    } else {
+      for (int x = 0; x < graph_left.length - 1; x = x + 4) {
+        l = abs(graph_left[x]*255);
+        r = abs(graph_right[x]*255);
+        fill(0, 0, l%256);
+        rect(x * 2 + 5, 256, 5, -l);//left channel
+        fill(0, r%256, 0);
+        rect(x * 2 + 520, 256, 5, -r);//right channel
+      } 
     }
   }
 }
@@ -149,11 +178,17 @@ void keyPressed() {
 
 void mouseClicked() {
   if (loaded) {
-    if (mouseY >= 350 && mouseY <= 380 && mouseX > 5 && mouseX < width-5)//in position bar
+    if (mouseY > 353 && mouseY <= 380 && mouseX > 5 && mouseX < width-5)//in position bar
       player.cue(int(map(mouseX, 6, width-6, 0, 1)*total_time));//set position close to click position
-    //if(){
-
-    //}
+    else if(mouseY <= 260 && mouseX > 5 && mouseX < width-2){ //in visualization area
+      freq = !freq;//flip between showing raw channel info and fft band info
+    }
+    else if(mouseY >= 270 && mouseY < 350 && mouseX >= 886 && mouseX < 900){//in volume area
+      player.setGain(map(mouseY, 350, 270, -80, player.gain().getMaximum())); 
+      println(player.gain().getPrecision());
+      println(player.getGain());
+    }
+    //println(mouseX + "  " + mouseY);
   }
 }
 

@@ -10,6 +10,7 @@ String name, author, title;
 Boolean name_entered, loaded, playing, freq;
 PFont font;
 float[] graph_left, graph_right;
+ArrayList g_levels;
 float r, l;
 int played_time, total_time;
 
@@ -52,6 +53,8 @@ void draw() {
     total_time = player.length();
     graph_left = new float[256];//blank for loading new songs 
     graph_right = new float[256];// ditto
+    g_levels = gainLevels(player);
+    println(g_levels.size());
     println(player.getControls());
   }
   if (loaded) {
@@ -97,8 +100,15 @@ void draw() {
     rect(width - 150, 265, 17, 82);//volume
     fill(100);
     stroke(100);
-    rect(width - 149, 346, 15, -(map(player.getGain(), -80.0, player.gain().getMaximum(), 0, 80)));
-    //rect();//balance
+    rect(width - 149, 346, 15, -(map(g_levels.indexOf(player.getGain()), g_levels.size()-1, 0, 0, 80)));
+    
+    
+    noFill();
+    stroke(150, 25, 25);
+    rect(int(width/2) -51 , 265, 102, 17);//balance
+    fill(100);
+    stroke(100);
+    rect(int(width/2) , 265, player.getPan()*50, 15);
 
 
     //develop a SIMPLE visualizer
@@ -183,10 +193,10 @@ void mouseClicked() {
     else if(mouseY <= 260 && mouseX > 5 && mouseX < width-2){ //in visualization area
       freq = !freq;//flip between showing raw channel info and fft band info
     }
-    else if(mouseY >= 270 && mouseY < 350 && mouseX >= 886 && mouseX < 900){//in volume area
-      player.setGain(map(mouseY, 350, 270, -80, player.gain().getMaximum())); 
-      println(player.gain().getPrecision());
-      println(player.getGain());
+    else if(mouseY >= 270 && mouseY <= 348 && mouseX >= 886 && mouseX < 900){//in volume area
+      int lev = int(map(mouseY, 348, 270, g_levels.size()-1, 0));
+      println(lev + ": " + float(g_levels.get(lev).toString()));
+      player.setGain(float(g_levels.get(lev).toString())); 
     }
     //println(mouseX + "  " + mouseY);
   }
@@ -200,3 +210,25 @@ String toMin(int seconds) {
   return head + ":" + tail;
 }
 
+ArrayList gainLevels(AudioPlayer p){//get gain levels for pseudo-volume control
+  float x = p.gain().getMinimum();
+  float y = p.gain().getMaximum();
+  float c = 0.0;//to mark gain levels
+  float i = 0.4;//amount to increment.  higher will give fewer gain levels and vice versa
+  ArrayList levels = new ArrayList();
+  
+  player.setGain(y);
+  while(x < y){
+    if(player.getGain() != c) {//gain level has changed, so enter new level into list
+      c = player.getGain();
+      levels.add(c);
+      //println(count + ": " + c);
+      //count++;
+    }
+    y = y - i;
+    player.setGain(y);
+  }
+  
+  p.setGain(float(levels.get(50).toString()));//set to roughly 50% gain
+  return levels;
+}

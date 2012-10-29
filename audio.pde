@@ -14,6 +14,9 @@ ArrayList g_levels;
 float r, l;
 int played_time, total_time;
 
+String PROMPT = "Please enter a URL of a MP3 to load. Press enter to end input.";
+String error = "";
+
 void setup() {
   size(1034, 400);
   //size(1034, 400,OPENGL);//uncomment if not smooth, may not help
@@ -41,21 +44,28 @@ void draw() {
   stroke(100);
   //allows users to select an mp3 file (or type a URL) to play
   if (!loaded) {
-    text("Please enter a URL of a MP3 to load. Press enter to end input.", 10, 40);
-    text(name, 10, 75);
+    text(error + PROMPT + "\n" + name, 10, 40);
+    
   }
   //read/write audio files (can you convert from mp3 to aiff for example?)
   if (name_entered && !loaded) {
-    player = minim.loadFile(name, 256);
-    loaded = true;
-    author = player.getMetaData().author();
-    title  = player.getMetaData().title();
-    total_time = player.length();
-    graph_left = new float[256];//blank for loading new songs 
-    graph_right = new float[256];// ditto
-    g_levels = gainLevels(player);
-    println(g_levels.size());
-    println(player.getControls());
+    try {
+      player = minim.loadFile(name, 256);
+      loaded = true;
+      author = player.getMetaData().author();
+      title  = player.getMetaData().title();
+      total_time = player.length();
+      graph_left = new float[256];//blank for loading new songs 
+      graph_right = new float[256];// ditto
+      g_levels = gainLevels(player);
+      error = "";
+      println(g_levels.size());
+      println(player.getControls());
+    } catch (NullPointerException ex) {
+      error = "Bad file name.\n";
+      name_entered = false;
+    }
+    
   }
   if (loaded) {
     if (playing) {//don't update visualizer if paused.
@@ -178,11 +188,14 @@ void keyPressed() {
       player.cue(pos);
     }
   }
-  else if(key == 'l' && loaded){
+  else if(key == 'l' && loaded){//reset to load a new file
     player.close();
     name_entered = false;
     loaded = false;
     playing = false; 
+  } 
+  else if(key == 's' && loaded){//save audio.  must use type that processing supports
+    
   }
 }
 
